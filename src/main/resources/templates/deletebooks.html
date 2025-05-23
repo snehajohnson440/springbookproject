@@ -6,7 +6,8 @@
 .container {
   display: flex;      
   gap: 40px;  
-  flex-wrap: wrap;           
+  flex-wrap: wrap;
+  justify-content: center;          
 }
 .image {
 	width: 170px; 
@@ -18,7 +19,7 @@
 <center><h3>Click to delete books</h3></center>
 
 <div class="container">
- <!-- Fix starts here -->
+
   <div th:each="book : ${viewAllBooks}">
     <div>
       <a th:href="@{/deleteBooks/{id}(id=${book.id})}">
@@ -26,7 +27,6 @@
       </a>
     </div>
   </div>
-  <!-- Fix ends here -->
 </div>
 </body>
 </html>
