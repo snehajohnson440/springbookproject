@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<HEAD>
+<style>
+.container {
+  display: flex;      
+  gap: 40px;  
+  flex-wrap: wrap;           
+}
+.image {
+	width: 170px; 
+	height: 250px;
+}
+</style>
+</head>
+<body>
+<center><h3>Click to delete books</h3></center>
+
+<div class="container">
+ <!-- Fix starts here -->
+  <div th:each="book : ${viewAllBooks}">
+    <div>
+      <a th:href="@{/deleteBooks/{id}(id=${book.id})}">
+        <img th:src="${book.imageUrl}" alt="Book Cover" class="image" />
+      </a>
+    </div>
+  </div>
+  <!-- Fix ends here -->
+</div>
+</body>
+</html>

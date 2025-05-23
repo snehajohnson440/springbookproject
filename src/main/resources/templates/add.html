@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Book Search</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background: #f9f9f9;
+    }
+    #searchBox {
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    .book {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .book img {
+      width: 50px;
+      height: auto;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Search Books</h2>
+  <input type="text" id="searchBox" placeholder="Type a book name...">
+  <div id="results"></div>
+
+<script>
+  const searchBox = document.getElementById('searchBox');
+  const resultsDiv = document.getElementById('results');
+  let timeout = null;
+
+  searchBox.addEventListener('input', () => {
+    const query = searchBox.value.trim();
+    clearTimeout(timeout);
+    resultsDiv.innerHTML = '';
+
+    if (query === '') {
+      return;
+    }
+
+    timeout = setTimeout(() => {
+      fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+          resultsDiv.innerHTML = '';
+
+          if (!data.items || data.items.length === 0) {
+            resultsDiv.innerHTML = '<p>No results found.</p>';
+            return;
+          }
+
+          data.items.slice(0, 10).forEach(book => {
+            const title = book.volumeInfo.title || 'No Title';
+            const thumbnail = book.volumeInfo.imageLinks?.thumbnail || 'https://via.placeholder.com/50x75?text=No+Image';
+
+            const bookDiv = document.createElement('div');
+            bookDiv.className = 'book';
+            bookDiv.innerHTML = `
+              <img src="${thumbnail}" alt="Book cover">
+              <p>${title}</p>
+            `;
+
+            // 👇 Send book data to backend on click
+            bookDiv.addEventListener('click', () => {
+              fetch('http://localhost:8080/books', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  name: title,
+                  imageUrl: thumbnail,
+                  category: {
+                	    categoryName: "Other"  
+                	  }
+                })
+              })
+              .then(response => response.json())
+              .then(data => {
+                alert(`Book saved: ${data.name}`);
+                window.location.href = '/';
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to save book.');
+              });
+            });
+
+            resultsDiv.appendChild(bookDiv);
+          });
+        });
+    }, 300);
+  });
+</script>
+
+
+</body>
+</html>
